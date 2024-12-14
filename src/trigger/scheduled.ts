@@ -56,14 +56,14 @@ Text to analyze: ${text}`;
 export const firstScheduledTask = schedules.task({
   id: "scheduled-legal-jobs-scraping",
   cron: {
-    pattern: "*/2 * * * *",
+    pattern: "* * * * *",
     timezone: "Europe/Paris",
   },
   
   run: async () => {
     try {
       await client.connect();
-      const messages = await client.getMessages(Bun.env.TELEGRAM_CHANNEL_USERNAME, {
+      const messages = await client.getMessages(process.env.TELEGRAM_CHANNEL_USERNAME, {
         limit: 100,
         offsetDate: Math.floor((Date.now() - 1000 * 60 * 60 * 24) / 1000),
       });
@@ -97,7 +97,7 @@ export const firstScheduledTask = schedules.task({
 
       logger.log("CSV data", { csvData });
       const base64CSV = Buffer.from(csvData).toString('base64')
-      const subjectList = [Bun.env.EMAIL_ONE, Bun.env.EMAIL_TWO] as Array<string>
+      const subjectList = [process.env.EMAIL_ONE, process.env.EMAIL_TWO] as Array<string>
       await resendClient.emails.send({
        from: 'Odogwu Sexc <osa@glamboyosa.xyz>',
        to: subjectList,
