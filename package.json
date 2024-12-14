@@ -9,6 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "telegram": "^2.26.8"
   }
 }
