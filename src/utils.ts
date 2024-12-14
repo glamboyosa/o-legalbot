@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Resend } from "resend";
 import { TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
 
@@ -13,3 +14,5 @@ const client = new TelegramClient(stringSession, apiId, apiHash, {
   export default client;
 
 export const geminiClient = new GoogleGenerativeAI(Bun.env.GEMINI_API_KEY as string);
+
+export const resendClient = new Resend(Bun.env.RESEND_API_KEY as string);

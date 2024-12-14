@@ -1,5 +1,5 @@
 import { logger, schedules, wait } from "@trigger.dev/sdk/v3";
-import client, { geminiClient } from "../utils";
+import client, { geminiClient, resendClient } from "../utils";
 interface JobPosting {
   jobTitle: string;
   jobDescriptionSummary: string;
@@ -91,6 +91,22 @@ export const firstScheduledTask = schedules.task({
       const csvData = headers.concat(csvLines).join('\n');
 
       logger.log("Processed legal jobs", { processedJobs });
+
+      logger.log("CSV data", { csvData });
+      const base64CSV = Buffer.from(csvData).toString('base64')
+      const subjectList = [Bun.env.EMAIL_ONE, Bun.env.EMAIL_TWO] as Array<string>
+      await resendClient.emails.send({
+       from: 'Odogwu Sexc <osa@glamboyosa.xyz>',
+       to: subjectList,
+       subject: `Legal Jobs List for ${new Date().toISOString().split('T')[0]} 🧹`,
+       text: 'Hey, Find the attached CSV file containing the legal jobs list',
+       attachments: [
+         {
+           content: base64CSV,
+           filename: 'legal-jobs-list.csv',
+         },
+       ],
+     });
 
 
     } catch (error) {
