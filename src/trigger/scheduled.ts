@@ -1,5 +1,7 @@
 import { logger, schedules, wait } from "@trigger.dev/sdk/v3";
 import client, { geminiClient, resendClient } from "../utils";
+import crypto from 'crypto';
+
 interface JobPosting {
   jobTitle: string;
   jobDescriptionSummary: string;
@@ -31,17 +33,19 @@ Return: JobPosting
 Text to analyze: ${text}`;
 
     const result = await model.generateContent(prompt);
-    const response =  result.response;
-    let parsed: JobPosting;
-    
-    try {
-      // Try direct response first
-      parsed = response.text() as unknown as JobPosting;
-    } catch {
-      // Fall back to JSON.parse if needed
-      parsed = JSON.parse(response.text());
+    const response = result.response;
+    const responseText = response.text();
+
+    const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
+    if (!jsonMatch) {
+      throw new Error('Could not find JSON in response');
     }
-    
+
+    const jsonString = jsonMatch[1];
+
+    const parsed: JobPosting = JSON.parse(jsonString);
+
+    logger.log("Parsed response", { parsed });
     if (!parsed.jobTitle || !parsed.jobDescriptionSummary) {
       throw new Error('Invalid response structure');
     }
@@ -56,7 +60,7 @@ Text to analyze: ${text}`;
 export const firstScheduledTask = schedules.task({
   id: "scheduled-legal-jobs-scraping",
   cron: {
-    pattern: "* * * * *",
+    pattern: "0 9 * * *",
     timezone: "Europe/Paris",
   },
   
@@ -64,8 +68,8 @@ export const firstScheduledTask = schedules.task({
     try {
       await client.connect();
       const messages = await client.getMessages(process.env.TELEGRAM_CHANNEL_USERNAME, {
-        limit: 100,
-        offsetDate: Math.floor((Date.now() - 1000 * 60 * 60 * 24) / 1000),
+        limit: 500,
+       
       });
 
       // Filter messages containing legal keywords
@@ -109,6 +113,9 @@ export const firstScheduledTask = schedules.task({
            filename: 'legal-jobs-list.csv',
          },
        ],
+       headers: {
+        'X-Entity-Ref-ID': `legal-jobs-list-${crypto.randomUUID()}`,
+       }
      });
 
 
