@@ -68,8 +68,8 @@ export const firstScheduledTask = schedules.task({
     try {
       await client.connect();
       const messages = await client.getMessages(process.env.TELEGRAM_CHANNEL_USERNAME, {
-        limit: 500,
-       
+        limit: 200,
+        offsetDate: Math.floor((Date.now() - 1000 * 60 * 60 * 24) / 1000),
       });
 
       // Filter messages containing legal keywords
