@@ -42,7 +42,6 @@ Text to analyze: ${text}`;
       parsed = JSON.parse(response.text());
     }
     
-    // Validate response structure
     if (!parsed.jobTitle || !parsed.jobDescriptionSummary) {
       throw new Error('Invalid response structure');
     }
@@ -56,7 +55,11 @@ Text to analyze: ${text}`;
 
 export const firstScheduledTask = schedules.task({
   id: "scheduled-legal-jobs-scraping",
-  cron: "0 * * * *",
+  cron: {
+    pattern: "*/2 * * * *",
+    timezone: "Europe/Paris",
+  },
+  
   run: async () => {
     try {
       await client.connect();
