@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for o-legalbot on 2024-12-14T20:05:06+01:00
+# fly.toml app configuration file generated for o-legalbot on 2024-12-14T20:15:25+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -7,23 +7,16 @@ app = 'o-legalbot'
 primary_region = 'lhr'
 
 [build]
-  builder = 'paketobuildpacks/builder:base'
-  buildpacks = ['oven-sh/bun']
-
-[deploy]
-  strategy = 'immediate'
-
-[env]
-  PORT = '3000'
 
 [http_service]
   internal_port = 3000
   force_https = true
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
 
 [[vm]]
-  memory = '512mb'
+  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
