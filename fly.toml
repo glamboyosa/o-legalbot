@@ -1,0 +1,29 @@
+# fly.toml configuration file for Legal Jobs Bot
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = 'o-legalbot'
+primary_region = 'lhr'
+
+[deploy]
+  strategy = "immediate"
+
+[build]
+  # Specify Bun as the builder
+  builder = "paketobuildpacks/builder:base"
+  buildpacks = ["oven-sh/bun"]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '512mb' 
+  cpu_kind = 'shared'
+  cpus = 1
+
+[env]
+  PORT = "3000" 
